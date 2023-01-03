@@ -1,3 +1,4 @@
+//助教我愛你 
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>//使用kbhit()感測按下檢盤 
