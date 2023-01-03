@@ -1,85 +1,209 @@
+//§U±Ğ§Ú·R§A 
 #include <stdio.h>
 #include <stdlib.h>
-#include <conio.h>//ä½¿ç”¨kbhit()æ„Ÿæ¸¬æŒ‰ä¸‹æª¢ç›¤ 
-#include <windows.h>//æ¸¸æ¨™å‡½å¼ 
+#include <conio.h>//¨Ï¥Îkbhit()·P´ú«ö¤UÀË½L 
+#include <windows.h>//´å¼Ğ¨ç¦¡ 
 #include <time.h>
 
-#define high 25 //ç•«å¸ƒé«˜
-#define width 30 //ç•«å¸ƒå¯¬
-#define border 0 //é‚Šç•Œ
-#define blank 1 //ç©ºç™½
-#define plane 2 //é£›æ©Ÿ
-#define bullet 3 //å­å½ˆ
-#define enemy 4 //æ•µæ©Ÿ
-#define destroy 5 //æ‘§æ¯€æ¨™è¨˜
+#define high 25 //µe¥¬°ª
+#define width 30 //µe¥¬¼e
+#define border 0 //Ãä¬É
+#define blank 1 //ªÅ¥Õ
+#define plane 2 //­¸¾÷
+#define bullet 3 //¤l¼u
+#define enemy 4 //¼Ä¾÷
+#define destroy 5 //ºR·´¼Ğ°O
 
-int canvas[high+2][width+2]; //éŠæˆ²å ´æ™¯çš„é«˜å’Œå¯¬ï¼Œé ­å°¾+2 
-int pos_h,pos_w; //é£›æ©Ÿä½ç½®
-int enemynum; //æ•µæ©Ÿæ•¸é‡
-int interval; //åŒå€‹è¨ˆæ¬¡ä¾†æ¨¡æ“¬æ™‚é–“é–“éš”
-int itv_move; //æ•µæ©Ÿç§»å‹•çš„æ™‚é–“é–“éš”
-int itv_new; //æ•µæ©Ÿé‡æ–°æ•´ç†çš„æ™‚é–“é–“éš”
-int score; //åˆ†æ•¸
-int IsOver; //åˆ¤æ–·éŠæˆ²æ˜¯å¦çµæŸ
+int canvas[high+2][width+2]; //¹CÀ¸³õ´ºªº°ª©M¼e¡AÀY§À+2 
+int pos_h,pos_w; //­¸¾÷¦ì¸m
+int enemynum; //¼Ä¾÷¼Æ¶q
+int interval; //¦P­Ó­p¦¸¨Ó¼ÒÀÀ®É¶¡¶¡¹j
+int itv_move; //¼Ä¾÷²¾°Êªº®É¶¡¶¡¹j
+int itv_new; //¼Ä¾÷­«·s¾ã²zªº®É¶¡¶¡¹j
+int score; //¤À¼Æ
+int IsOver; //§PÂ_¹CÀ¸¬O§_µ²§ô
 
-void Startup(); //éŠæˆ²æ•¸å€¼åˆå§‹åŒ–
-void Show(); //éŠæˆ²ä»‹é¢è¼¸å‡º
+void Startup(); //¹CÀ¸¼Æ­Èªì©l¤Æ
+void Show(); //µe­±¿é¥X
+void UpdateInput(); //±±¨î¤W¤U¥ª¥k¬O§_³y¦¨¼Y·´©Mµo®g¤l¼u 
+void UpdateNormal(); //µe­±§ó·s(¥¿­±¼²¨ì­¸¾÷or®g¨ì­¸¾÷) 
+void HideCursor();
+void gotoxy(int x,int y);
 
 int main(){
- 	Startup(); //åˆå§‹åŒ–
-	while(IsOver){ //éŠæˆ²è¿´åœˆ
- 		UpdateInput();
- 		UpdateNormal();
-		Show();
+ 	Startup(); //ªì©l¤Æ
+	while(IsOver){ //¹CÀ¸°j°é¡A IsOver=0®Égame over 
+ 		UpdateInput();//±±¨î¤W¤U¥ª¥k¬O§_³y¦¨¼Y·´©Mµo®g¤l¼u 
+ 		UpdateNormal();//µe­±§ó·s(¥¿­±¼²¨ì­¸¾÷or®g¨ì­¸¾÷) 
+		Show();//µe­±¿é¥X
  	}
  	printf("\t\tGAME OVER!\n");
- 	//Sleep(2500); //æš«åœéŠæˆ²çµæŸä»‹é¢ï¼ˆæ¯«ç§’ï¼‰
  	system("pause");
  	return 0;
 }
-void Startup(){ //éŠæˆ²æ•¸å€¼åˆå§‹åŒ–
+void Startup(){ //¹CÀ¸¼Æ­Èªì©l¤Æ
  	IsOver=1;
- 	score=0; //åˆå§‹åŒ–åˆ†æ•¸
-	for(int i=0;i<high+2;i++){ //åˆå§‹åŒ–ç•«å¸ƒ
+ 	score=0; //ªì©l¤Æ¤À¼Æ
+	for(int i=0;i<high+2;i++){ //ªì©l¤Æµe¥¬                        
 	 	for(int j=0;j<width+2;j++){
-	 		if(i==0 || i==high+1 ||j==0 || j==width+1)//ç•«å‡ºæ–¹å½¢é‚Šç•Œ 
+	 		if(i==0 || i==high+1 ||j==0 || j==width+1)//µe¥X¤è§ÎÃä¬É 
 	 			canvas[i][j]=border;
-	 	else canvas[i][j]=blank;//ç•«å‡ºç©ºç™½å€åŸŸ 
+	 	else canvas[i][j]=blank;//µe¥XªÅ¥Õ°Ï°ì 
 	 	}
 	}
-	pos_h=high/2; //åˆå§‹åŒ–é£›æ©Ÿè±ç›´åº§æ¨™
- 	pos_w=width/2; //åˆå§‹åŒ–é£›æ©Ÿæ°´å¹³åº§æ¨™
-	canvas[pos_h][pos_w]=plane; //åˆå§‹åŒ–é£›æ©Ÿä½ç½®(è®“é£›æ©Ÿåœ¨æ­£ä¸­é–“)
-	enemynum=10; //æ•µæ©Ÿæ›´æ–°çš„æ•¸é‡
+	pos_h=high/2; //ªì©l¤Æ­¸¾÷½İª½®y¼Ğ
+ 	pos_w=width/2; //ªì©l¤Æ­¸¾÷¤ô¥­®y¼Ğ
+	canvas[pos_h][pos_w]=plane; //ªì©l¤Æ­¸¾÷¦ì¸m(Åı­¸¾÷¦b¥¿¤¤¶¡)
+	enemynum=10; //¼Ä¾÷§ó·sªº¼Æ¶q
 	srand(time(NULL));
-	interval=4; //å‰›é–‹å§‹éŠæˆ²çš„åœé “ 
-	itv_move=5; //åˆå§‹åŒ–æ•µæ©Ÿç§»å‹•æ™‚é–“é–“éš”
-	itv_new =40; //åˆå§‹åŒ–æ•µæ©Ÿå‡ºç¾é–“éš” 
+	interval=4; //­è¶}©l¹CÀ¸ªº°±¹y 
+	itv_move=5; //ªì©l¤Æ¼Ä¾÷²¾°Ê®É¶¡¶¡¹j
+	itv_new =40; //ªì©l¤Æ¼Ä¾÷¥X²{¶¡¹j 
+	
 }
-void Show(){ //éŠæˆ²ç•«é¢è¼¸å‡º
-	HideCursor(); //éš±è—æ¸¸æ¨™
- 	gotoxy(0,0); //è®“æ¸¸æ¨™å›åˆ°åŸé»åœ¨è¼¸å‡ºç•«é¢ï¼Œä¸ç„¶æœƒä¸€è¡Œä¸€è¡Œå¯«ä¸‹å» 
+void Show(){ //¹CÀ¸µe­±¿é¥X
+	HideCursor(); //ÁôÂÃ´å¼Ğ
+ 	gotoxy(0,0); //Åı´å¼Ğ¦^¨ì­ìÂI¦b¿é¥Xµe­±¡A¤£µM·|¤@¦æ¤@¦æ¼g¤U¥h 
  	for(int i=0;i<high+2;i++){
  		for(int j=0;j<width+2;j++){
- 			if( canvas[i][j] == plane ) //ç•¶å‰ä½ç½®ç‚ºé£›æ©Ÿä½ç½®
+ 			if( canvas[i][j] == plane ) //·í«e¦ì¸m¬°­¸¾÷¦ì¸m
 				printf("*");
- 			else if( canvas[i][j] == bullet ) //ç•¶å‰ä½ç½®ç‚ºå­å½ˆä½ç½®
+ 			else if( canvas[i][j] == bullet ) //·í«e¦ì¸m¬°¤l¼u¦ì¸m
  				printf(".");
  		
- 			else if( canvas[i][j] == enemy ) //ç•¶å‰ä½ç½®ç‚ºæ•µæ©Ÿä½ç½®
+ 			else if( canvas[i][j] == enemy ) //·í«e¦ì¸m¬°¼Ä¾÷¦ì¸m
  				printf("@");
  
- 			else if( canvas[i][j] == border ) //ç•¶å‰ä½ç½®ç‚ºé‚Šç•Œ
+ 			else if( canvas[i][j] == border ) //·í«e¦ì¸m¬°Ãä¬É
  				printf("+");
  				
- 			else if( canvas[i][j] == blank ) //ç•¶å‰ä½ç½®ç„¡ç‰©ï¼Œä¸”åœ¨é‚Šç•Œå…§
+ 			else if( canvas[i][j] == blank ) //·í«e¦ì¸mµLª«¡A¥B¦bÃä¬É¤º
  				printf(" ");
  				
- 			else if( canvas[i][j] == destroy ) //ç•¶å‰ä½ç½®ç„¡ç‰©ï¼Œä¸”åœ¨é‚Šç•Œå…§
+ 			else if( canvas[i][j] == destroy ) //·í«e¦ì¸mµLª«¡A¥B¦bÃä¬É¤º
  				printf("x");
  		}
  		printf("\n");
  	}
- 	printf("W(ä¸Š),S(ä¸‹),A(å·¦),D(å³)\n");
- 	printf("\nå¾—åˆ†ï¼š%d",score);
+ 	printf("W(¤W),S(¤U),A(¥ª),D(¥k)\n");
+ 	printf("\n±o¤À¡G%d",score);
+}
+
+
+void UpdateInput(){ //±±¨î¤W¤U¥ª¥k¬O§_³y¦¨¼Y·´©Mµo®g¤l¼u 
+	char key_W=GetKeyState('W'),//ºÊ´ú W Áä¬O§_«ö¤U
+	key_S=GetKeyState('S'),//ºÊ´ú S Áä¬O§_«ö¤U
+	key_A=GetKeyState('A'),//ºÊ´ú A Áä¬O§_«ö¤U
+	key_D=GetKeyState('D'),//ºÊ´ú D Áä¬O§_«ö¤U
+	key_attack=GetKeyState(' '); //ºÊ´ú ªÅ®æ Áä¬O§_«ö¤U
+ 	if(kbhit()){ //·í¦³Áä«ö¤U®É
+ 		if(key_W<0){ //·í«ö¤U W Áä¡A¤W²¾ 
+ 			if(pos_h>1){//¦pªG¤£¦b³Ì³»ºİ ¡A¤~¥i¥H¤W²¾ 
+ 				canvas[pos_h][pos_w]=blank;
+ 				if(canvas[pos_h-1][pos_w] == enemy){ //¤U­Ó¦ì¸m¬O¼Ä¾÷¡A¼²·´
+ 					canvas[pos_h-1][pos_w]= destroy;
+ 					IsOver=0;
+ 				}
+ 				else canvas[--pos_h][pos_w]=plane;//©¹¤W¼Æ­È´î¤Ö¡A©Ò¥H--pos_h 
+ 			}
+ 		}
+ 		if(key_S<0){ //·í«ö¤U S Áä¡A¤U²¾
+ 			if(pos_h<high){
+ 				canvas[pos_h][pos_w]=blank;
+	 			if(canvas[pos_h+1][pos_w] == enemy){ //¤U­Ó¦ì¸m¬O¼Ä¾÷¡A¼²·´
+ 					canvas[pos_h+1][pos_w]= destroy;
+ 					IsOver=0;
+ 				}
+ 				else canvas[++pos_h][pos_w]=plane;
+ 			}
+ 		}
+ 		if(key_A<0){ //·í«ö¤U A Áä¡A¥ª²¾
+	 		if(pos_w>1){
+	 			canvas[pos_h][pos_w]=blank;
+	 			if(canvas[pos_h][pos_w-1] == enemy){ //¤U­Ó¦ì¸m¬O¼Ä¾÷¡A¼²·´
+	 				canvas[pos_h][pos_w-1]= destroy;
+	 				IsOver=0;
+	 			}
+	 			else canvas[pos_h][--pos_w]=plane;
+	 		}
+ 		}
+ 		if(key_D<0){ //·í«ö¤U D Áä¡A¥k²¾
+ 			if(pos_w<width){
+ 				canvas[pos_h][pos_w]=blank;
+ 				if(canvas[pos_h][pos_w+1] == enemy){ //¤U­Ó¦ì¸m¬O¼Ä¾÷¡A¼²·´
+				 	canvas[pos_h][pos_w+1]= destroy;
+				 	IsOver=0;
+ 				}
+ 				else canvas[pos_h][++pos_w]=plane;
+ 			}
+ 		}
+ 		if(key_attack<0&&pos_h!=1) //·í«ö¤UªÅ®æÁä¡Aµo®g¤l¼u
+ 			canvas[pos_h-1][pos_w]=bullet;	
+ 	}
+}
+
+
+void UpdateNormal(){ //µe­±§ó·s(¥¿­±¼²¨ì­¸¾÷or®g¨ì­¸¾÷) 
+ 	int temp[high+2][width+2];//³]¨â±iµe­±¥æ´«¡A­×§ïµe­± 
+ 	for(int i=1;i<=high;i++){
+ 		for(int j=1;j<=width;j++){
+ 			temp[i][j]=canvas[i][j];
+ 		}
+ 	}
+ 	for(int i=1;i<=high;i++){ 
+ 		for(int j=1;j<=width;j++){
+ 			if(temp[i][j]==enemy && interval%itv_move==0){ //·í«e¼Ä¾÷¦ì¸m
+ 				canvas[i][j]=blank;
+ 				if(temp[i+1][j]==bullet){ //¤U­±¬°¤l¼u¡A¼Ä¾÷³QÀ»¤¤
+ 					canvas[i+1][j]=blank;//¤U¤@±iµe­±Åã¥ÜªÅ¥Õ 
+ 					score++;
+ 				}
+ 				else if(i<high)
+ 					canvas[i+1][j]=enemy;
+ 
+ 				if(i+1==pos_h&&j==pos_w){ //¤U­±¬°­¸¾÷¡Aª±®a­¸¾÷³Q¼²·´
+ 					canvas[i+1][j]=destroy;//¤U¤@±iµe­±Åã¥Ü¤e¤e 
+ 					IsOver=0;
+ 				}
+ 			}
+ 			if(temp[i][j]==bullet){ //·í«e¤l¼u¦ì¸m
+ 				canvas[i][j]=blank;
+ 				if(temp[i-1][j]==enemy){ //¤U­Ó¦ì¸m¬O¼Ä¾÷¡A¼Ä¾÷³QÀ»·´
+ 					canvas[i-1][j]=blank;//¤U¤@±iµe­±Åã¥ÜªÅ¥Õ 
+ 					score++;
+ 				}
+ 				else if(i>1)
+ 					canvas[i-1][j]=bullet;
+ 			}
+ 		}
+ 	}
+ 	if(interval%itv_new==0) //­è¦n¨ì®É¶¡¶¡¹j
+ 		for(int i=0;i<enemynum;i++) //·s¼W¼Ä¾÷¸s
+ 			canvas[rand()%2+1][rand()%width+1]=enemy;
+ 
+ 	if(interval<=100) //®É¶¡¶¡¹j­p¦¸
+ 		interval++;
+ 
+ 	else //®É¶¡¶¡¹j­p¦¸²M¹s
+ 		interval=0;
+ 
+}
+
+
+void gotoxy(int x,int y){ //²¾°Ê´å¼Ğªº¨ç¦¡ 
+ COORD pos;
+ pos.X=x;
+ pos.Y=y;
+ SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),pos);
+}
+ 
+void HideCursor(){ //ÁôÂÃ´å¼Ğªº¨ç¦¡¡A¤£¨Ï¥Î¦¹¨ç¦¡ªº¸Ü·|³y¦¨´å¼Ğ¤@ª½¦A¶]¡A¾É­P¬İ°_¨Ó¦³­Ó "|"¦b°{Ã{ 
+ /*CONSOLE_CURSOR_INFO cursor;
+ cursor.bVisible = FALSE;
+ cursor.dwSize = sizeof(cursor);
+ HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
+ SetConsoleCursorInfo(handle,&cursor);
+ */
+  CONSOLE_CURSOR_INFO cursor={1,0};//²Ä¤G­Ó0ªí¥ÜÁôÂÃ´å¼Ğ 
+  SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE),&cursor);
 }
